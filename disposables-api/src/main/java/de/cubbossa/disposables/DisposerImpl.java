@@ -2,6 +2,8 @@ package de.cubbossa.disposables;
 
 import java.util.*;
 
+import org.junit.platform.commons.util.Preconditions;
+
 class DisposerImpl implements Disposer {
 
   private final Map<Disposable, Node> nodeTree;
@@ -22,6 +24,9 @@ class DisposerImpl implements Disposer {
 
   @Override
   public void register(Disposable parent, Disposable disposable) {
+    Preconditions.notNull(parent, "parent");
+    Preconditions.notNull(disposable, "disposable");
+
     Node parentNode = node(parent);
     Node childNode = node(disposable);
 
@@ -30,12 +35,18 @@ class DisposerImpl implements Disposer {
 
   @Override
   public void unregister(Disposable disposable) {
+    if (disposable == null) {
+      return;
+    }
     nodeTree.remove(disposable);
     nodeTree.values().forEach(e -> e.children.remove(disposable));
   }
 
   @Override
   public void dispose(Disposable disposable) {
+    if (disposable == null) {
+      return;
+    }
     if (!nodeTree.containsKey(disposable)) {
       disposable.dispose();
       return;
